@@ -221,6 +221,7 @@ def main():
                 options.autostart = None
                 options.csv_prefix = None
                 options.html_file = None
+                options.print_stats = None
                 break
         else:
             # we're in the parent process
