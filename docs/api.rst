@@ -69,6 +69,13 @@ MilvusUser class
     :members: wait_time, tasks, client, abstract
     :noindex:
 
+QdrantUser class
+================
+
+.. autoclass:: locust.contrib.qdrant.QdrantUser
+    :members: wait_time, tasks, client, abstract
+    :noindex:
+
 DNSUser class
 ==========
 
