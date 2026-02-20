@@ -19,18 +19,15 @@ class SimpleQdrantUser(QdrantUser):
         self.dimension = 128
         self.test_vectors = [[random.random() for _ in range(self.dimension)] for _ in range(10)]
 
-    def __init__(self, environment):
-        vectors_config = VectorParams(
-            size=128,
-            distance=Distance.COSINE,
-        )
+    collection_name = "load_test_collection"
+    vectors_config = VectorParams(
+        size=128,
+        distance=Distance.COSINE,
+    )
 
-        super().__init__(
-            environment,
-            url=environment.host,
-            collection_name="load_test_collection",
-            vectors_config=vectors_config,
-        )
+    def __init__(self, environment):
+        self.url = environment.host
+        super().__init__(environment)
 
     @task(3)
     def upsert_data(self):

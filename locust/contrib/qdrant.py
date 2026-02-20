@@ -156,29 +156,30 @@ class QdrantUser(User):
 
     abstract = True
 
-    def __init__(
-        self,
-        environment,
-        url: str = "http://localhost:6333",
-        api_key: str | None = None,
-        collection_name: str = "test_collection",
-        timeout: int = 60,
-        vectors_config: VectorParams | None = None,
-        client_kwargs: dict | None = None,
-        collection_kwargs: dict | None = None,
-    ):
+    url: str = "http://localhost:6333"
+    api_key: str | None = None
+    collection_name: str | None = None
+    timeout: int = 60
+    vectors_config: VectorParams | None = None
+    client_kwargs: dict | None = None
+    collection_kwargs: dict | None = None
+
+    def __init__(self, environment):
         super().__init__(environment)
+
+        if self.collection_name is None:
+            raise ValueError("'collection_name' must be provided for QdrantUser")
 
         self.client_type = "qdrant"
         self.client = QdrantLocustClient(
-            url=url,
-            api_key=api_key,
-            collection_name=collection_name,
-            timeout=timeout,
-            **(client_kwargs or {}),
+            url=self.url,
+            api_key=self.api_key,
+            collection_name=self.collection_name,
+            timeout=self.timeout,
+            **(self.client_kwargs or {}),
         )
-        if vectors_config is not None:
-            self.client.create_collection(vectors_config=vectors_config, **(collection_kwargs or {}))
+        if self.vectors_config is not None:
+            self.client.create_collection(vectors_config=self.vectors_config, **(self.collection_kwargs or {}))
 
     @staticmethod
     def _fire_event(request_type: str, name: str, result: dict[str, Any]):
