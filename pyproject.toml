@@ -63,6 +63,7 @@ otel = [
     "opentelemetry-instrumentation-requests>=0.59b0",
     "opentelemetry-instrumentation-urllib3>=0.59b0",
 ]
+qdrant = ["qdrant-client>=1.16.2"]
 
 [project.urls]
 homepage = "https://locust.io/"
@@ -109,6 +110,7 @@ docs = [
     "pymilvus>=2.5.0",
     "psycopg[binary]>=3.2.1",
     "pymongo>=4.8.0",
+    "qdrant-client>=1.16.2",
 ]
 milvus = ["pymilvus>=2.5.0"]
 mqtt = ["paho-mqtt>=2.1.0"]
@@ -120,6 +122,7 @@ otel = [
     "opentelemetry-instrumentation-requests>=0.59b0",
     "opentelemetry-instrumentation-urllib3>=0.59b0",
 ]
+qdrant = ["qdrant-client>=1.16.2"]
 
 [project.scripts]
 locust = "locust.main:main"
