@@ -274,7 +274,7 @@ class WebUI:
                             err_msg = f"Invalid user_count value: {value!r} (must be an integer)"
                             logger.error(err_msg)
                             return jsonify({"success": False, "message": err_msg, "host": environment.host})
-                        parsed_options_dict["users"] = user_count
+                        parsed_options_dict["num_users"] = user_count
                     case "spawn_rate":
                         try:
                             spawn_rate = float(value)

@@ -278,6 +278,7 @@ class TestWebUI(LocustTestCase, _HeaderCheckMixin):
         self.assertEqual(200, response.status_code)
         self.assertEqual("https://localhost", response.json()["host"])
         self.assertEqual(self.environment.host, "https://localhost")
+        self.assertEqual(self.environment.parsed_options.num_users, 5)
         # stop
         gevent.sleep(1)
         response = requests.get("http://127.0.0.1:%i/stop" % self.web_port)
