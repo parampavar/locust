@@ -1,5 +1,5 @@
 from locust import FastHttpUser
-from locust.contrib.fasthttp import FastHttpSession
+from locust.contrib.fasthttp import FastHttpSession, _construct_basic_auth_str
 from locust.exception import CatchResponseError, InterruptTaskSet, LocustError, ResponseError
 from locust.user import TaskSet, task
 from locust.util.load_locustfile import is_user_class
@@ -601,6 +601,30 @@ class TestFastHttpUserClass(WebserverTestCase):
         self.assertEqual("Authorized", response.text)
         self.assertEqual(401, locust.client.get("/basic_auth").status_code)
         self.assertEqual(401, unauthorized.client.get("/basic_auth").status_code)
+
+    def test_client_basic_auth_percent_encoded_credentials(self):
+        class MyAuthorizedUser(FastHttpUser):
+            host = f"http://loc%75st:men%61ce@127.0.0.1:{self.port}"
+
+        authorized = MyAuthorizedUser(self.environment)
+        response = authorized.client.get("/basic_auth")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("Authorized", response.text)
+
+    def test_client_basic_auth_credentials_are_unquoted(self):
+        class MyUser(FastHttpUser):
+            host = "http://locust:p%40ss%2Fword@example.com"
+
+        locust = MyUser(self.environment)
+        self.assertEqual("http://example.com", locust.client.base_url)
+        self.assertEqual(_construct_basic_auth_str("locust", "p@ss/word"), locust.client.auth_header)
+
+    def test_client_basic_auth_ipv6_host(self):
+        class MyUser(FastHttpUser):
+            host = "http://locust:menace@[::1]:8089/base"
+
+        locust = MyUser(self.environment)
+        self.assertEqual("http://[::1]:8089/base", locust.client.base_url)
 
     def test_shared_client_pool(self):
         shared_client_pool = HTTPClientPool(concurrency=1)

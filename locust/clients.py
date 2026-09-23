@@ -8,7 +8,7 @@ import sys
 import time
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, cast
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import unquote, urlparse, urlunparse
 
 import requests
 from packaging.version import Version
@@ -104,16 +104,13 @@ class HttpSession(requests.Session):
         # Check for basic authentication
         parsed_url = urlparse(self.base_url)
         if parsed_url.username and parsed_url.password:
-            netloc = parsed_url.hostname
-            if parsed_url.port:
-                netloc += ":%d" % parsed_url.port
-
-            # remove username and password from the base_url
+            # remove username and password from the base_url (keeping e.g. the brackets of an IPv6 host)
+            netloc = parsed_url.netloc.rpartition("@")[2]
             self.base_url = urlunparse(
                 (parsed_url.scheme, netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment)
             )
-            # configure requests to use basic auth
-            self.auth = HTTPBasicAuth(parsed_url.username, parsed_url.password)
+            # configure requests to use basic auth (credentials in a URL are percent-encoded)
+            self.auth = HTTPBasicAuth(unquote(parsed_url.username), unquote(parsed_url.password))
 
         self.mount("https://", LocustHttpAdapter(pool_manager=pool_manager))
         self.mount("http://", LocustHttpAdapter(pool_manager=pool_manager))
