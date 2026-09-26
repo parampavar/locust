@@ -15,7 +15,7 @@ from base64 import b64encode
 from http.cookiejar import CookieJar
 from ssl import SSLError
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import unquote, urlparse, urlunparse
 
 import gevent
 from charset_normalizer import detect
@@ -128,11 +128,8 @@ class FastHttpSession:
         if self.base_url:
             parsed_url = urlparse(self.base_url)
             if parsed_url.username and parsed_url.password:
-                netloc = parsed_url.hostname or ""
-                if parsed_url.port:
-                    netloc += ":%d" % parsed_url.port
-
-                # remove username and password from the base_url
+                # remove username and password from the base_url (keeping e.g. the brackets of an IPv6 host)
+                netloc = parsed_url.netloc.rpartition("@")[2]
                 self.base_url = str(
                     urlunparse(
                         (
@@ -146,7 +143,8 @@ class FastHttpSession:
                     )
                 )
                 # store authentication header (we construct this by using _basic_auth_str() function from requests.auth)
-                self.auth_header = _construct_basic_auth_str(parsed_url.username, parsed_url.password)
+                # (credentials in a URL are percent-encoded)
+                self.auth_header = _construct_basic_auth_str(unquote(parsed_url.username), unquote(parsed_url.password))
 
     def _build_url(self, path: str) -> str:
         """prepend url with hostname unless it's already an absolute URL"""
